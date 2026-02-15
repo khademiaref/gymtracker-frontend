@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001'; // Backend URL
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'; // Use Vercel env var or fallbac for local dev
 
 const api = axios.create({
   baseURL: API_URL,
