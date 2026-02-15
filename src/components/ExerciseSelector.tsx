@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import api from '../api';
-import { ExerciseDefinition } from '../types'; // We'll define types.ts next
+import type { ExerciseDefinition } from '../types';
 
 interface ExerciseSelectorProps {
   selectedExercises: ExerciseDefinition[];
@@ -20,11 +20,15 @@ const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({ selectedExercises, 
 
   const fetchExercises = async () => {
     try {
-      const response = await api.get('/exercise-definitions'); // Need to create this endpoint in backend
+      const response = await api.get<ExerciseDefinition[]>('/exercise-definitions');
       setAllExercises(response.data);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to fetch exercise definitions', err);
-      setError('Failed to load exercises.');
+      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
+        setError((err as any).response.data || 'Failed to load exercise definitions.');
+      } else {
+        setError('Failed to load exercise definitions.');
+      }
     }
   };
 
@@ -36,13 +40,17 @@ const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({ selectedExercises, 
       return;
     }
     try {
-      const response = await api.post('/exercise-definitions', { name: newExerciseName, description: newExerciseDescription }); // Need to create this endpoint
+      const response = await api.post<ExerciseDefinition>('/exercise-definitions', { name: newExerciseName, description: newExerciseDescription });
       setAllExercises([...allExercises, response.data]);
       setNewExerciseName('');
       setNewExerciseDescription('');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to add exercise definition', err);
-      setError(err.response?.data || 'Failed to add exercise.');
+      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
+        setError((err as any).response.data || 'Failed to add exercise.');
+      } else {
+        setError('Failed to add exercise.');
+      }
     }
   };
 
@@ -53,7 +61,7 @@ const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({ selectedExercises, 
 
       {allExercises.length > 0 ? (
         <ul>
-          {allExercises.map((exercise) => (
+          {allExercises.map((exercise: ExerciseDefinition) => (
             <li key={exercise.id}>
               <input
                 type="checkbox"
@@ -72,7 +80,7 @@ const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({ selectedExercises, 
       <form onSubmit={handleAddExerciseDefinition}>
         <input
           type="text"
-          placeholder="Exercise Name"
+          placeholder="New Exercise Name"
           value={newExerciseName}
           onChange={(e) => setNewExerciseName(e.target.value)}
         />

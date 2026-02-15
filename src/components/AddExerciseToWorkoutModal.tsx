@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import api from '../api';
-import { ExerciseDefinition } from '../types';
+import type { ExerciseDefinition } from '../types';
 
 interface AddExerciseToWorkoutModalProps {
   isOpen: boolean;
@@ -24,11 +24,15 @@ const AddExerciseToWorkoutModal: React.FC<AddExerciseToWorkoutModalProps> = ({ i
 
   const fetchExerciseDefinitions = async () => {
     try {
-      const response = await api.get('/exercise-definitions');
+      const response = await api.get<ExerciseDefinition[]>('/exercise-definitions');
       setAllExerciseDefinitions(response.data);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to fetch exercise definitions', err);
-      setError('Failed to load exercise definitions.');
+      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
+        setError((err as any).response.data || 'Failed to load exercise definitions.');
+      } else {
+        setError('Failed to load exercise definitions.');
+      }
     }
   };
 
@@ -40,13 +44,17 @@ const AddExerciseToWorkoutModal: React.FC<AddExerciseToWorkoutModalProps> = ({ i
       return;
     }
     try {
-      const response = await api.post('/exercise-definitions', { name: newExerciseName, description: newExerciseDescription });
+      const response = await api.post<ExerciseDefinition>('/exercise-definitions', { name: newExerciseName, description: newExerciseDescription });
       setAllExerciseDefinitions([...allExerciseDefinitions, response.data]);
       setNewExerciseName('');
       setNewExerciseDescription('');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to add exercise definition', err);
-      setError(err.response?.data || 'Failed to add exercise.');
+      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
+        setError((err as any).response.data || 'Failed to add exercise.');
+      } else {
+        setError('Failed to add exercise.');
+      }
     }
   };
 
@@ -67,7 +75,7 @@ const AddExerciseToWorkoutModal: React.FC<AddExerciseToWorkoutModalProps> = ({ i
         <h4>Existing Exercises:</h4>
         {allExerciseDefinitions.length > 0 ? (
           <ul>
-            {allExerciseDefinitions.map((def) => (
+            {allExerciseDefinitions.map((def: ExerciseDefinition) => (
               <li key={def.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 {def.name} - {def.description}
                 <button

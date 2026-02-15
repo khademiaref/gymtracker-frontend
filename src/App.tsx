@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './AuthContext';
 import Login from './Login';
 import Register from './Register';
-import Home from './Home';
+import Home from './pages/Home';
 import TemplatesPage from './pages/TemplatesPage';
 import AddEditTemplateForm from './components/AddEditTemplateForm';
 import TemplateDetail from './pages/TemplateDetail';

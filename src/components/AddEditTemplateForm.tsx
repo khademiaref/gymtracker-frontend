@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-import { WorkoutTemplate, ExerciseDefinition } from '../types';
+import type { WorkoutTemplate, ExerciseDefinition } from '../types';
 import ExerciseSelector from './ExerciseSelector';
 
 interface AddEditTemplateFormProps {
@@ -47,9 +47,13 @@ const AddEditTemplateForm: React.FC<AddEditTemplateFormProps> = ({ templateToEdi
         await api.post('/templates', templateData);
       }
       navigate('/templates'); // Redirect to templates list
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to save template', err);
-      setError(err.response?.data || 'Failed to save template.');
+      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
+        setError((err as any).response.data || 'Failed to save template.');
+      } else {
+        setError('Failed to save template.');
+      }
     }
   };
 

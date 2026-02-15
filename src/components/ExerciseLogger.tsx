@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import api from '../api';
-import { ExerciseDefinition, ExerciseSet, CompletedExercise } from '../types';
+import type { ExerciseDefinition, ExerciseSet } from '../types'; // Removed CompletedExercise
 
 interface ExerciseLoggerProps {
   exerciseDefinition: ExerciseDefinition;
@@ -24,14 +24,18 @@ const ExerciseLogger: React.FC<ExerciseLoggerProps> = ({ exerciseDefinition, onS
 
   const fetchPreviousSets = async () => {
     try {
-      const response = await api.get(`/workouts/last-exercise/${exerciseDefinition.id}`);
+      const response = await api.get<{ sets: ExerciseSet[], date: string }>(`/workouts/last-exercise/${exerciseDefinition.id}`);
       setPreviousSets(response.data);
-    } catch (err: any) {
-      if (err.response?.status === 404) {
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'status' in (err as any).response && (err as any).response.status === 404) {
         setPreviousSets(null); // No previous data
       } else {
         console.error('Failed to fetch previous sets', err);
-        setError('Failed to load previous data.');
+        if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
+          setError((err as any).response.data || 'Failed to load previous data.');
+        } else {
+          setError('Failed to load previous data.');
+        }
       }
     }
   };
@@ -44,9 +48,9 @@ const ExerciseLogger: React.FC<ExerciseLoggerProps> = ({ exerciseDefinition, onS
   const updateSet = (index: number, field: keyof ExerciseSet, value: string) => {
     const newSets = [...sets];
     if (field === 'reps') {
-      newSets[index][field] = parseInt(value) || 0;
+      (newSets[index][field] as number) = parseInt(value) || 0; // Type assertion
     } else if (field === 'weight') {
-      newSets[index][field] = parseFloat(value) || 0;
+      (newSets[index][field] as number) = parseFloat(value) || 0; // Type assertion
     }
     setSets(newSets);
   };
@@ -65,8 +69,8 @@ const ExerciseLogger: React.FC<ExerciseLoggerProps> = ({ exerciseDefinition, onS
         <div style={{ marginBottom: '10px', fontSize: '0.9em', color: '#666' }}>
           <p>Last Session ({new Date(previousSets.date).toLocaleDateString()}):</p>
           <ul>
-            {previousSets.sets.map((set, index) => (
-              <li key={index}>{set.reps} reps @ {set.weight} kg</li>
+            {previousSets.sets.map((set: ExerciseSet, index: number) => (
+              <li key={set.id || index}>{set.reps} reps @ {set.weight} kg</li>
             ))}
           </ul>
         </div>
@@ -75,7 +79,7 @@ const ExerciseLogger: React.FC<ExerciseLoggerProps> = ({ exerciseDefinition, onS
       )}
 
       <h5>Current Sets:</h5>
-      {sets.map((set, index) => (
+      {sets.map((set: ExerciseSet, index: number) => (
         <div key={set.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
           <input
             type="number"

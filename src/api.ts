@@ -1,7 +1,7 @@
 
-import axios from 'axios';
+import axios, { AxiosError } from 'axios'; // Import AxiosError
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'; // Use Vercel env var or fallbac for local dev
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'; // Use Vercel env var or fallback for local dev
 
 const api = axios.create({
   baseURL: API_URL,
@@ -18,7 +18,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
+  (error: AxiosError) => { // Explicitly type as AxiosError
     return Promise.reject(error);
   }
 );
