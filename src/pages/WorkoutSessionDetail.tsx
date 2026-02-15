@@ -19,13 +19,9 @@ const WorkoutSessionDetail: React.FC = () => {
     try {
       const response = await api.get<WorkoutSession>(`/workouts/${sessionId}`);
       setSession(response.data);
-    } catch (err: unknown) {
+    } catch (err: any) { // Changed to any as per request
       console.error('Failed to fetch workout session', err);
-      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
-        setError((err as any).response.data || 'Failed to load workout session.');
-      } else {
-        setError('Failed to load workout session.');
-      }
+      setError(err.response?.data || 'Failed to load workout session.');
     }
   };
 

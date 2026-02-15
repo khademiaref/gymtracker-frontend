@@ -17,13 +17,9 @@ const TemplatesPage: React.FC = () => {
     try {
       const response = await api.get<WorkoutTemplate[]>('/templates');
       setTemplates(response.data);
-    } catch (err: unknown) {
+    } catch (err: any) { // Changed to any as per request
       console.error('Failed to fetch templates', err);
-      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
-        setError((err as any).response.data || 'Failed to load templates.');
-      } else {
-        setError('Failed to load templates.');
-      }
+      setError(err.response?.data || 'Failed to load templates.');
     }
   };
 
@@ -32,13 +28,9 @@ const TemplatesPage: React.FC = () => {
       try {
         await api.delete(`/templates/${templateId}`);
         setTemplates(templates.filter(template => template.id !== templateId));
-      } catch (err: unknown) {
+      } catch (err: any) { // Changed to any as per request
         console.error('Failed to delete template', err);
-        if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
-          setError((err as any).response.data || 'Failed to delete template.');
-        } else {
-          setError('Failed to delete template.');
-        }
+        setError(err.response?.data || 'Failed to delete template.');
       }
     }
   };

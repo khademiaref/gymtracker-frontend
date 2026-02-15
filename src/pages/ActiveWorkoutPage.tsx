@@ -58,17 +58,13 @@ const ActiveWorkoutPage: React.FC = () => {
                 setWorkoutName(name);
                 setExercises(initialExercises);
 
-            } catch (err: unknown) {
-                console.error('Error initializing workout:', err);
-                if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
-                    setError((err as any).response.data || 'Failed to initialize workout.');
-                } else {
-                    setError('Failed to initialize workout.');
-                }
-            } finally {
-                setIsLoading(false);
-            }
-        };
+            } catch (err: any) { // Changed to any as per request
+      console.error('Error initializing workout:', err);
+      setError(err.response?.data || 'Failed to initialize workout.');
+    } finally {
+        setIsLoading(false);
+    }
+};
 
         initializeWorkout();
     }, [templateId, location.state]);
@@ -109,13 +105,9 @@ const ActiveWorkoutPage: React.FC = () => {
             };
             await api.post('/workouts', newWorkoutSession);
             navigate('/history'); // Redirect to history page
-        } catch (err: unknown) {
+        } catch (err: any) { // Changed to any as per request
             console.error('Failed to save workout:', err);
-            if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
-                setError((err as any).response.data || 'Failed to save workout.');
-            } else {
-                setError('Failed to save workout.');
-            }
+            setError(err.response?.data || 'Failed to save workout.');
         }
     };
 

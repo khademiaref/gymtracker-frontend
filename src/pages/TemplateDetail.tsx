@@ -22,13 +22,9 @@ const TemplateDetail: React.FC = () => {
     try {
       const response = await api.get<WorkoutTemplate>(`/templates/${templateId}`);
       setTemplate(response.data);
-    } catch (err: unknown) { // Changed to unknown
+    } catch (err: any) { // Changed to any as per request
       console.error('Failed to fetch template', err);
-      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
-        setError((err as any).response.data || 'Failed to load template.');
-      } else {
-        setError('Failed to load template.');
-      }
+      setError(err.response?.data || 'Failed to load template.');
     }
   };
 

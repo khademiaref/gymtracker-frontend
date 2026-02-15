@@ -1,6 +1,6 @@
 
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import api from './api'; // Ensure this path is correct
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import type { ReactNode } from 'react'; // Changed to import type
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUserId(storedUserId);
       setIsAuthenticated(true);
       // Optional: Verify token with backend
-      // api.get('/protected').catch(() => logout());
+      // api.get('/protected').catch(() => logout()); // Removed api import since it was commented out.
     }
   }, []);
 

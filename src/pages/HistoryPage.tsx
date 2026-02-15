@@ -16,13 +16,9 @@ const HistoryPage: React.FC = () => {
     try {
       const response = await api.get('/workouts');
       setSessions(response.data);
-    } catch (err: unknown) {
+    } catch (err: any) { // Changed to any as per request
       console.error('Failed to fetch workout sessions', err);
-      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
-        setError((err as any).response.data || 'Failed to load workout history.');
-      } else {
-        setError('Failed to load workout history.');
-      }
+      setError(err.response?.data || 'Failed to load workout history.');
     }
   };
 
@@ -31,13 +27,9 @@ const HistoryPage: React.FC = () => {
       try {
         await api.delete(`/workouts/${sessionId}`);
         setSessions(sessions.filter(session => session.id !== sessionId));
-      } catch (err: unknown) {
+      } catch (err: any) { // Changed to any as per request
         console.error('Failed to delete workout session', err);
-        if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
-          setError((err as any).response.data || 'Failed to delete session.');
-        } else {
-          setError('Failed to delete session.');
-        }
+        setError(err.response?.data || 'Failed to delete session.');
       }
     }
   };
