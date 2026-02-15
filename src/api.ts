@@ -18,7 +18,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error: AxiosError) => { // Explicitly type as AxiosError
+  (error: any) => { // Changed to any as per request
     return Promise.reject(error);
   }
 );

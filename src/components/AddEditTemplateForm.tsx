@@ -47,15 +47,12 @@ const AddEditTemplateForm: React.FC<AddEditTemplateFormProps> = ({ templateToEdi
         await api.post('/templates', templateData);
       }
       navigate('/templates'); // Redirect to templates list
-    } catch (err: unknown) {
+    } catch (err: any) { // Changed to any as per request
       console.error('Failed to save template', err);
-      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
-        setError((err as any).response.data || 'Failed to save template.');
-      } else {
-        setError('Failed to save template.');
-      }
+      setError(err.response?.data || 'Failed to save template.');
     }
   };
+
 
   return (
     <div style={{ maxWidth: '600px', margin: '20px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>

@@ -26,16 +26,12 @@ const ExerciseLogger: React.FC<ExerciseLoggerProps> = ({ exerciseDefinition, onS
     try {
       const response = await api.get<{ sets: ExerciseSet[], date: string }>(`/workouts/last-exercise/${exerciseDefinition.id}`);
       setPreviousSets(response.data);
-    } catch (err: unknown) {
-      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'status' in (err as any).response && (err as any).response.status === 404) {
+    } catch (err: any) { // Changed to any as per request
+      if (err.response?.status === 404) {
         setPreviousSets(null); // No previous data
       } else {
         console.error('Failed to fetch previous sets', err);
-        if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
-          setError((err as any).response.data || 'Failed to load previous data.');
-        } else {
-          setError('Failed to load previous data.');
-        }
+        setError(err.response?.data || 'Failed to load previous data.');
       }
     }
   };

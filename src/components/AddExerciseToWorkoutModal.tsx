@@ -48,13 +48,9 @@ const AddExerciseToWorkoutModal: React.FC<AddExerciseToWorkoutModalProps> = ({ i
       setAllExerciseDefinitions([...allExerciseDefinitions, response.data]);
       setNewExerciseName('');
       setNewExerciseDescription('');
-    } catch (err: unknown) {
+    } catch (err: any) { // Changed to any as per request
       console.error('Failed to add exercise definition', err);
-      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
-        setError((err as any).response.data || 'Failed to add exercise.');
-      } else {
-        setError('Failed to add exercise.');
-      }
+      setError(err.response?.data || 'Failed to add exercise.');
     }
   };
 
