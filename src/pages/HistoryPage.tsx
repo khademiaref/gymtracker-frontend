@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
-import { WorkoutSession } from '../types';
+import type { WorkoutSession } from '../types';
 
 const HistoryPage: React.FC = () => {
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
@@ -16,9 +16,13 @@ const HistoryPage: React.FC = () => {
     try {
       const response = await api.get('/workouts');
       setSessions(response.data);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to fetch workout sessions', err);
-      setError('Failed to load workout history.');
+      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
+        setError((err as any).response.data || 'Failed to load workout history.');
+      } else {
+        setError('Failed to load workout history.');
+      }
     }
   };
 
@@ -27,9 +31,13 @@ const HistoryPage: React.FC = () => {
       try {
         await api.delete(`/workouts/${sessionId}`);
         setSessions(sessions.filter(session => session.id !== sessionId));
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Failed to delete workout session', err);
-        setError('Failed to delete session.');
+        if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
+          setError((err as any).response.data || 'Failed to delete session.');
+        } else {
+          setError('Failed to delete session.');
+        }
       }
     }
   };
@@ -43,7 +51,7 @@ const HistoryPage: React.FC = () => {
         <p>No workout sessions logged yet.</p>
       ) : (
         <ul style={{ listStyleType: 'none', padding: 0 }}>
-          {sessions.map((session) => (
+          {sessions.map((session: WorkoutSession) => (
             <li key={session.id} style={{ border: '1px solid #eee', padding: '10px', marginBottom: '10px', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Link to={`/history/${session.id}`} style={{ textDecoration: 'none', color: '#007bff', flexGrow: 1 }}>
                 {new Date(session.date).toLocaleDateString()} - {session.completedExercises.length} exercises

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api';
-import { WorkoutSession } from '../types';
+import type { WorkoutSession } from '../types';
 
 const WorkoutSessionDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,11 +17,15 @@ const WorkoutSessionDetail: React.FC = () => {
 
   const fetchSession = async (sessionId: string) => {
     try {
-      const response = await api.get(`/workouts/${sessionId}`);
+      const response = await api.get<WorkoutSession>(`/workouts/${sessionId}`);
       setSession(response.data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch workout session', err);
-      setError(err.response?.data || 'Failed to load workout session.');
+      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
+        setError((err as any).response.data || 'Failed to load workout session.');
+      } else {
+        setError('Failed to load workout session.');
+      }
     }
   };
 
@@ -39,16 +43,16 @@ const WorkoutSessionDetail: React.FC = () => {
       <p><strong>Date:</strong> {new Date(session.date).toLocaleString()}</p>
       
       <h3>Exercises:</h3>
-      {session.completedExercises.length === 0 ? (
+      {session.completedExercises?.length === 0 ? ( // Added optional chaining
         <p>No exercises recorded for this session.</p>
       ) : (
         <ul style={{ listStyleType: 'none', padding: 0 }}>
-          {session.completedExercises.map((exercise) => (
+          {session.completedExercises?.map((exercise) => ( // Added optional chaining
             <li key={exercise.id} style={{ border: '1px solid #eee', padding: '10px', marginBottom: '10px', borderRadius: '4px' }}>
               <h4>{exercise.exerciseName}</h4>
               <p>Sets:</p>
               <ul style={{ listStyleType: 'disc', marginLeft: '20px' }}>
-                {exercise.sets.map((set, index) => (
+                {exercise.sets?.map((set, index) => ( // Added optional chaining
                   <li key={set.id || index}>{set.reps} reps @ {set.weight} kg</li>
                 ))}
               </ul>

@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // Removed Link
 import api from '../api';
-import { WorkoutTemplate } from '../types';
+import type { WorkoutTemplate } from '../types'; // Changed to import type
 import AddEditTemplateForm from '../components/AddEditTemplateForm';
 
 const TemplateDetail: React.FC = () => {
@@ -20,11 +20,15 @@ const TemplateDetail: React.FC = () => {
 
   const fetchTemplate = async (templateId: string) => {
     try {
-      const response = await api.get(`/templates/${templateId}`);
+      const response = await api.get<WorkoutTemplate>(`/templates/${templateId}`);
       setTemplate(response.data);
-    } catch (err: any) {
+    } catch (err: unknown) { // Changed to unknown
       console.error('Failed to fetch template', err);
-      setError(err.response?.data || 'Failed to load template.');
+      if (typeof err === 'object' && err !== null && 'response' in err && typeof (err as any).response === 'object' && (err as any).response !== null && 'data' in (err as any).response) {
+        setError((err as any).response.data || 'Failed to load template.');
+      } else {
+        setError('Failed to load template.');
+      }
     }
   };
 
@@ -44,11 +48,11 @@ const TemplateDetail: React.FC = () => {
         <>
           <h2>{template.name}</h2>
           <p>Exercises:</p>
-          {template.exercises.length === 0 ? (
+          {template.exercises?.length === 0 ? ( // Added optional chaining
             <p>No exercises in this template.</p>
           ) : (
             <ul>
-              {template.exercises.map(exercise => (
+              {template.exercises?.map((exercise) => ( // Added optional chaining
                 <li key={exercise.id}>{exercise.name}</li>
               ))}
             </ul>
